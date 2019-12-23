@@ -162,6 +162,7 @@ class NodeClass
       IniFile iniFile;
       iniFile.SetFileName(sIniDirectory + "Platform.ini", "PltfHardwareCoB3.h");
       iniFile.GetKeyInt("Config", "NumberOfMotors", &m_iNumJoints, true);
+      m_iNumJoints = 8;
 
       ucar_ctrl_ = new UndercarriageCtrlGeom(sIniDirectory);
 
@@ -210,7 +211,7 @@ class NodeClass
     void topicCallbackTwistCmd(const geometry_msgs::Twist::ConstPtr& msg)
     {
       double vx_cmd_mms, vy_cmd_mms, w_cmd_rads;
-
+      
       // check for NaN value in Twist message
       if(isnan(msg->linear.x) || isnan(msg->linear.y) || isnan(msg->angular.z)) {
         iwatchdog_ = 0;
@@ -537,11 +538,11 @@ void NodeClass::CalcCtrlStep()
     // ToDo: adapt interface of controller class --> remove last values (not used anymore)
 
     // if drives not operating nominal -> force commands to zero
-    if(drive_chain_diagnostic_ != diagnostic_status_lookup_.OK)
-    {
-      steer_jointang_cmds_rad.assign(m_iNumJoints, 0.0);
-      steer_jointvel_cmds_rads.assign(m_iNumJoints, 0.0);
-    }
+    //if(drive_chain_diagnostic_ != diagnostic_status_lookup_.OK)
+    //{
+    //  steer_jointang_cmds_rad.assign(m_iNumJoints, 0.0);
+    //  steer_jointvel_cmds_rads.assign(m_iNumJoints, 0.0);
+    //}
 
     // convert variables to SI-Units
     vx_cmd_ms = vx_cmd_ms/1000.0;
@@ -565,7 +566,7 @@ void NodeClass::CalcCtrlStep()
     joint_state_cmd.joint_names.push_back("br_caster_rotation_joint");
     joint_state_cmd.joint_names.push_back("fr_caster_r_wheel_joint");
     joint_state_cmd.joint_names.push_back("fr_caster_rotation_joint");
-    joint_state_cmd.joint_names.resize(m_iNumJoints);
+    //joint_state_cmd.joint_names.resize(m_iNumJoints);
 
     // compose data body
     j = 0;
@@ -573,6 +574,7 @@ void NodeClass::CalcCtrlStep()
     for(int i = 0; i<m_iNumJoints; i++)
     {
       if(iwatchdog_ < (int) std::floor(timeout_/sample_time_) )
+      //if(1)
       {
         // for steering motors
         if( i == 1 || i == 3 || i == 5 || i == 7) // ToDo: specify this via the Msg
@@ -600,6 +602,7 @@ void NodeClass::CalcCtrlStep()
 
     // publish jointcmds
     topic_pub_controller_joint_command_.publish(joint_state_cmd);
+    std::cout << "joint_command: " << joint_state_cmd << std::endl;
   }
 
 }

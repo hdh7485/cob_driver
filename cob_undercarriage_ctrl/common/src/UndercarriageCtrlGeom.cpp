@@ -127,6 +127,9 @@ void UndercarriageCtrlGeom::InitUndercarriageCtrl(void)
 	iniFile.GetKeyInt("Geom", "DistWheels", &m_UnderCarriagePrms.iDistWheels, true);
 	iniFile.GetKeyInt("Geom", "RadiusWheel", &m_UnderCarriagePrms.iRadiusWheelMM, true);
 	iniFile.GetKeyInt("Geom", "DistSteerAxisToDriveWheelCenter", &m_UnderCarriagePrms.iDistSteerAxisToDriveWheelMM, true);
+	m_UnderCarriagePrms.iDistWheels = 480;
+    m_UnderCarriagePrms.iRadiusWheelMM = 88;
+    m_UnderCarriagePrms.iDistSteerAxisToDriveWheelMM = 45;
 
 	iniFile.GetKeyDouble("Geom", "Wheel1XPos", &m_vdWheelXPosMM[0], true);
 	iniFile.GetKeyDouble("Geom", "Wheel1YPos", &m_vdWheelYPosMM[0], true);
@@ -136,19 +139,37 @@ void UndercarriageCtrlGeom::InitUndercarriageCtrl(void)
 	iniFile.GetKeyDouble("Geom", "Wheel3YPos", &m_vdWheelYPosMM[2], true);
 	iniFile.GetKeyDouble("Geom", "Wheel4XPos", &m_vdWheelXPosMM[3], true);
 	iniFile.GetKeyDouble("Geom", "Wheel4YPos", &m_vdWheelYPosMM[3], true);
+    m_vdWheelXPosMM[0] = 240;
+    m_vdWheelYPosMM[0] = 190;
+    m_vdWheelXPosMM[1] = -240;
+    m_vdWheelYPosMM[1] = 190;
+    m_vdWheelXPosMM[2] = -240;
+    m_vdWheelYPosMM[2] = -190;
+    m_vdWheelXPosMM[3] = 240;
+    m_vdWheelYPosMM[3] = -190;
 
 	iniFile.GetKeyDouble("DrivePrms", "MaxDriveRate", &m_UnderCarriagePrms.dMaxDriveRateRadpS, true);
 	iniFile.GetKeyDouble("DrivePrms", "MaxSteerRate", &m_UnderCarriagePrms.dMaxSteerRateRadpS, true);
+    m_UnderCarriagePrms.dMaxDriveRateRadpS = 12.267;
+    m_UnderCarriagePrms.dMaxSteerRateRadpS = 24.4;
 
 	iniFile.GetKeyDouble("DrivePrms", "Wheel1SteerDriveCoupling", &m_UnderCarriagePrms.vdSteerDriveCoupling[0], true);
 	iniFile.GetKeyDouble("DrivePrms", "Wheel2SteerDriveCoupling", &m_UnderCarriagePrms.vdSteerDriveCoupling[1], true);
 	iniFile.GetKeyDouble("DrivePrms", "Wheel3SteerDriveCoupling", &m_UnderCarriagePrms.vdSteerDriveCoupling[2], true);
 	iniFile.GetKeyDouble("DrivePrms", "Wheel4SteerDriveCoupling", &m_UnderCarriagePrms.vdSteerDriveCoupling[3], true);
+    m_UnderCarriagePrms.vdSteerDriveCoupling[0] = 2;
+    m_UnderCarriagePrms.vdSteerDriveCoupling[1] = 2;
+    m_UnderCarriagePrms.vdSteerDriveCoupling[2] = 2;
+    m_UnderCarriagePrms.vdSteerDriveCoupling[3] = 2;
 
 	iniFile.GetKeyDouble("DrivePrms", "Wheel1NeutralPosition", &m_UnderCarriagePrms.WheelNeutralPos[0], true);
 	iniFile.GetKeyDouble("DrivePrms", "Wheel2NeutralPosition", &m_UnderCarriagePrms.WheelNeutralPos[1], true);
 	iniFile.GetKeyDouble("DrivePrms", "Wheel3NeutralPosition", &m_UnderCarriagePrms.WheelNeutralPos[2], true);
 	iniFile.GetKeyDouble("DrivePrms", "Wheel4NeutralPosition", &m_UnderCarriagePrms.WheelNeutralPos[3], true);
+    m_UnderCarriagePrms.WheelNeutralPos[0] = 2;
+    m_UnderCarriagePrms.WheelNeutralPos[1] = 2;
+    m_UnderCarriagePrms.WheelNeutralPos[2] = 2;
+    m_UnderCarriagePrms.WheelNeutralPos[3] = 2;
 
 	for(int i = 0; i<4; i++)
 	{
@@ -171,6 +192,11 @@ void UndercarriageCtrlGeom::InitUndercarriageCtrl(void)
 	iniFile.GetKeyDouble("SteerCtrl", "VirtMass", &m_dVirtM, true);
 	iniFile.GetKeyDouble("SteerCtrl", "DPhiMax", &m_dDPhiMax, true);
 	iniFile.GetKeyDouble("SteerCtrl", "DDPhiMax", &m_dDDPhiMax, true);
+	m_dSpring = 14.0;
+	m_dDamp = 2.75;
+	m_dVirtM = 0.1;
+	m_dDPhiMax = 10.0;
+	m_dDDPhiMax = 40.0;
 
 	// calculate polar coords of Wheel Axis in robot coordinate frame
 	for(int i=0; i<4; i++)
@@ -291,9 +317,11 @@ void UndercarriageCtrlGeom::SetDesiredPltfVelocity(double dCmdVelLongMMS, double
 	fprintf(m_pfileMeasVel, "%f %f %f %f \n", m_dNowTime, m_dVelLongMMS, m_dVelLatMMS, m_dRotRobRadS);
 	// Log out corresponding Joint-Configuration
 	fprintf(m_pfileSteerAngTarget1, "%f %f %f %f %f \n", m_dNowTime, m_vdAngGearSteerTarget1Rad[0], m_vdAngGearSteerTarget1Rad[1], m_vdAngGearSteerTarget1Rad[2], m_vdAngGearSteerTarget1Rad[3]);
-	fprintf(m_pfileSteerAngTarget2, "%f %f %f %f %f \n", m_dNowTime, m_vdAngGearSteerTarget2Rad[0], m_vdAngGearSteerTarget2Rad[1], m_vdAngGearSteerTarget2Rad[2], m_vdAngGearSteerTarget2Rad[3]);
-	fprintf(m_pfileSteerAngTarget, "%f %f %f %f %f \n", m_dNowTime, m_vdAngGearSteerTargetRad[0], m_vdAngGearSteerTargetRad[1], m_vdAngGearSteerTargetRad[2], m_vdAngGearSteerTargetRad[3]);
+	fprintf(m_pfileSteerAngTarget2, "%f %f %f %f %f \n", m_dNowTime, m_vdAngGearSteerTarget2Rad[0], m_vdAngGearSteerTarget2Rad[1], m_vdAngGearSteerTarget2Rad[2], m_vdAngGearSteerTarget2Rad[	fprintf(m_pfileSteerAngTarget, "%f %f %f %f %f \n", m_dNowTime, m_vdAngGearSteerTargetRad[0], m_vdAngGearSteerTargetRad[1], m_vdAngGearSteerTargetRad[2], m_vdAngGearSteerTargetRad[3]);
 	fprintf(m_pfileDriveVelTarget, "%f %f %f %f %f \n", m_dNowTime, m_vdVelGearDriveTargetRadS[0], m_vdVelGearDriveTargetRadS[1], m_vdVelGearDriveTargetRadS[2], m_vdVelGearDriveTargetRadS[3]);*/
+	//std::cout << m_vdAngGearSteerTarget1Rad[0] << " " << m_vdAngGearSteerTarget1Rad[1] << " " << m_vdAngGearSteerTarget1Rad[2] << " " <<m_vdAngGearSteerTarget1Rad[3] << std::endl;
+	//std::cout << m_vdAngGearSteerTarget2Rad[0] << " " << m_vdAngGearSteerTarget2Rad[1] << " " << m_vdAngGearSteerTarget2Rad[2] << " " <<m_vdAngGearSteerTarget2Rad[3] << std::endl;
+	//std::cout << m_vdVelGearDriveTargetRadS[0] << " " << m_vdAngGearSteerTarget2Rad[1] << " " << m_vdAngGearSteerTarget2Rad[2] << " " <<m_vdAngGearSteerTarget2Rad[3] << std::endl;
 }
 
 // Set actual values of wheels (steer/drive velocity/position) (Istwerte)
