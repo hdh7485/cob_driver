@@ -142,7 +142,7 @@ class NodeClass
       else
       {
         ROS_WARN("No parameter max_trans_velocity on Parameter-Server. Using default: 1.1 m/s");
-        max_vel_trans_ = 1.1;
+        max_vel_trans_ = 3.0;
       }
       if (n.hasParam("max_rot_velocity"))
       {
